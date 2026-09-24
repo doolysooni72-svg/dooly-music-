@@ -5,10 +5,18 @@ on:
     branches: [ "main" ]
   workflow_dispatch: {}
 
+# Folder inside the repo that contains pubspec.yaml.
+# Change this if you rename or move the project folder.
+env:
+  PROJECT_DIR: dooly_music
+
 jobs:
   build-android:
     name: Build Android APK
     runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: ${{ env.PROJECT_DIR }}
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
@@ -40,31 +48,4 @@ jobs:
         uses: actions/upload-artifact@v4
         with:
           name: dooly-music-apk
-          path: build/app/outputs/flutter-apk/app-release.apk
-
-  build-ios:
-    name: Build iOS (unsigned)
-    runs-on: macos-latest
-    steps:
-      - name: Checkout code
-        uses: actions/checkout@v4
-
-      - name: Set up Flutter
-        uses: subosito/flutter-action@v2
-        with:
-          channel: 'stable'
-
-      - name: Install dependencies
-        run: flutter pub get
-
-      - name: Generate app icons
-        run: flutter pub run flutter_launcher_icons
-
-      - name: Build iOS (no codesign)
-        run: flutter build ios --release --no-codesign
-
-      - name: Upload iOS build artifact
-        uses: actions/upload-artifact@v4
-        with:
-          name: dooly-music-ios-runner
-          path: build/ios/iphoneos
+          path: ${{ env.PROJECT_DIR }}/build/app/outputs/flutter-apk/app-release.apk
